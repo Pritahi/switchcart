@@ -1,0 +1,35 @@
+# Render Blueprint — one-click free deploy of SwitchCart.
+# Dashboard -> New -> Blueprint -> point at this repo. Done.
+services:
+  - type: web
+    name: switchcart
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx drizzle-kit push && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: switchcart-db
+          property: connectionString
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_BASE_URL
+        value: https://api-m.sandbox.paypal.com
+      - key: AI_API_KEY
+        sync: false
+      - key: AI_BASE_URL
+        value: https://api.openai.com/v1
+      - key: AI_MODEL
+        value: gpt-4o-mini
+
+databases:
+  - name: switchcart-db
+    plan: free
+    databaseName: switchcart
+    user: switchcart
