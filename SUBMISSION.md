@@ -1,12 +1,20 @@
 # SwitchCart — Devpost submission kit
 
 Copy-paste fields for the **PayPal AI Hackathon** on Devpost (deadline **13 Nov 2026, 01:30 IST**),
-plus the GitHub push steps. Everything in this file is project metadata — the technical
-documentation lives in `README.md`.
+Everything in this file is project metadata — the technical documentation lives in `README.md`.
 
 ---
 
-## 1. Push the repo to GitHub
+## 1. Push the repo to GitHub — DONE
+
+Repo is live and public: **https://github.com/Pritahi/switchcart**
+
+(Original push instructions kept for reference below; the push itself is complete.)
+
+
+<details>
+
+
 
 ```bash
 # from the project root (the folder that contains package.json)
@@ -21,10 +29,16 @@ Create the empty repository first at **https://github.com/new** (name: `switchca
 Public, no README/license/".gitignore" template — this project already has them).
 Verify the push: **https://github.com/<your-username>/switchcart**
 
-`.gitignore` is already in place, so `.env` (your PayPal secret, AI key) and
-`node_modules/`/`.next/` will never be committed.
 
-## 2. Deploy a public demo URL (required by Devpost)
+</details>
+
+## 2. Deploy a public demo URL — DONE (Vercel, PayPal sandbox live)
+
+Live demo: **https://switchcart-alpha.vercel.app** (health OK, real PayPal sandbox keys,
+badge "PAYPAL SANDBOX LIVE", no secrets exposed client-side).
+
+Render/Railway remain documented alternatives below:
+
 
 **Render (recommended, free):** https://dashboard.render.com/new → *Blueprint* → connect the repo.
 `render.yaml` provisions the web service + free Postgres, runs `drizzle-kit push` at build,
@@ -38,7 +52,7 @@ build `npm run build`, start `npm run start`.
 Without PayPal keys the demo still runs end-to-end in clearly-labelled simulation mode, so the
 public URL is judge-proof even if you skip credentials.
 
-## 3. Record the demo video (required)
+## 3. Record the demo video (required) — IN PROGRESS
 
 Use the **2:30 demo script** at the bottom of `README.md` as the storyboard. Screen-record the
 storefront in one window and `/merchant` in another, picture-in-picture or split. Upload to
@@ -106,12 +120,12 @@ Tailwind CSS.
 
 | Devpost requirement | Status |
 | --- | --- |
-| Working software (public demo URL) | ✅ code complete + verified — **needs your Render/Railway deploy** |
-| Source repository (public) | ✅ repo-ready (`.gitignore`, LICENSE, README) — **needs your GitHub push** |
-| Video demo (YouTube/Vimeo link) | ❌ **must be recorded by you** — storyboard provided (`README.md` §2:30 demo script) |
+| Working software (public demo URL) | ✅ live: https://switchcart-alpha.vercel.app (PayPal sandbox live) |
+| Source repository (public) | ✅ live: https://github.com/Pritahi/switchcart |
+| Video demo (YouTube/Vimeo link) | ⏳ recording in progress — storyboard in `README.md` §2:30 demo script |
 | Written description / fields | ✅ copy above |
 | Built with tags | ✅ listed above |
 | License | ✅ MIT (`LICENSE`) |
 | Uses PayPal API | ✅ Orders v2 + Payments v2 (authorize/capture/reauthorize/void), sandbox or simulator |
 | AI use disclosed | ✅ `README.md` → "AI-use disclosure" |
-| Submission before 13 Nov 2026 01:30 IST | ⏳ yours to submit: https://devpost.com/software |
+| Submission before 13 Nov 2026 01:30 IST | ⏳ Devpost draft `1294254-switchcart` at 3/5 steps; only video URL + final submit remain |
