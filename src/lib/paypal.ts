@@ -213,6 +213,7 @@ interface BaseOpts {
   description: string;
   amountCents: number;
   currency: string;
+  idempotencyKey?: string;
 }
 
 export async function ppCreateOrder(o: BaseOpts): Promise<PayPalOpResult> {
@@ -246,7 +247,7 @@ export async function ppCreateOrder(o: BaseOpts): Promise<PayPalOpResult> {
       user_action: "CONTINUE",
     },
   };
-  const requestId = randomUUID();
+  const requestId = o.idempotencyKey ?? randomUUID();
   if (PAYPAL_MODE === "simulation") {
     const response = simCreateOrder(request);
     return {
@@ -278,9 +279,10 @@ export async function ppAuthorizeOrder(
   paypalOrderId: string,
   amountCents: number,
   currency: string,
+  idempotencyKey?: string,
 ): Promise<PayPalOpResult> {
   const request: Json = { orderId: paypalOrderId };
-  const requestId = randomUUID();
+  const requestId = idempotencyKey ?? randomUUID();
   if (PAYPAL_MODE === "simulation") {
     const response = simAuthorize(paypalOrderId, amountCents, currency);
     return {
@@ -315,6 +317,7 @@ export async function ppCapture(
   amountCents: number,
   currency: string,
   invoiceId: string,
+  idempotencyKey?: string,
 ): Promise<PayPalOpResult> {
   const request: Json = {
     amount: { currency_code: currency, value: centsToApiValue(amountCents) },
@@ -322,7 +325,7 @@ export async function ppCapture(
     invoice_id: invoiceId.slice(0, 127),
     note_to_payer: "SwitchCart substitution checkout - thank you for your consent.",
   };
-  const requestId = randomUUID();
+  const requestId = idempotencyKey ?? randomUUID();
   if (PAYPAL_MODE === "simulation") {
     if (process.env.SIM_FORCE_CAPTURE_FAILURE === "1") {
       const response = simIssue("capture", "SIMULATED_CAPTURE_FAILURE", "Forced capture decline for demo.");
@@ -369,14 +372,14 @@ export async function ppCapture(
   }
 }
 
-export async function ppVoid(authorizationId: string): Promise<PayPalOpResult> {
+export async function ppVoid(authorizationId: string, idempotencyKey?: string): Promise<PayPalOpResult> {
   const request: Json = { authorizationId };
-  const requestId = randomUUID();
+  const requestId = idempotencyKey ?? randomUUID();
   if (PAYPAL_MODE === "simulation") {
     return {
       ok: true, action: "authorizations.void", httpStatus: 204,
       paypalRequestId: requestId, paypalDebugId: simDebug(),
-      request, response: { status: "VOIDED", authorization_id: authorizationId },
+      request, response: null,
       error: null, simulated: true,
     };
   }
@@ -413,11 +416,12 @@ export async function ppReauthorize(
   authorizationId: string,
   amountCents: number,
   currency: string,
+  idempotencyKey?: string,
 ): Promise<PayPalOpResult> {
   const request: Json = {
     amount: { currency_code: currency, value: centsToApiValue(amountCents) },
   };
-  const requestId = randomUUID();
+  const requestId = idempotencyKey ?? randomUUID();
   if (PAYPAL_MODE === "simulation") {
     if (process.env.SIM_FORCE_REAUTHORIZE_FAILURE === "1") {
       const response = simIssue(
@@ -432,10 +436,12 @@ export async function ppReauthorize(
       };
     }
     const response: Json = {
-      id: authorizationId,
-      status: "REAUTHORIZED",
+      id: rid("SIM-REAUTH"),
+      status: "CREATED",
       amount: request.amount,
+      create_time: nowIso(),
       update_time: nowIso(),
+      links: [{ rel: "self", href: "/v2/payments/authorizations/SIM-REAUTH", method: "GET" }],
     };
     return {
       ok: true, action: "authorizations.reauthorize", httpStatus: 201,

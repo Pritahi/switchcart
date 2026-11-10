@@ -1,0 +1,48 @@
+name: SwitchCart checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d app_db"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/app_db
+      PAYPAL_CLIENT_ID: ""
+      PAYPAL_CLIENT_SECRET: ""
+      AI_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx drizzle-kit push --force
+      - run: npx tsx --test tests/domain.test.ts tests/release.test.ts
+      - run: npx next typegen
+      - run: npm exec tsc -- --noEmit --pretty false
+      - run: npm run build
+      - run: npx tsx scripts/package-release.ts
+      - run: npx tsx scripts/verify-release.ts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: switchcart-source
+          path: public/downloads/switchcart-source.zip
+          if-no-files-found: error

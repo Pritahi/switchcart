@@ -104,14 +104,17 @@ function ruleFallback(
   note: string | null,
 ): AiOutcome {
   const scored = candidates
-    .filter((c) => prefs.maxDeltaCents == null || c.priceCents - original.priceCents <= prefs.maxDeltaCents)
+    .filter((c) => c.inStock && c.id !== original.id)
     .map((c) => scoreCandidate(original, c, prefs))
     .sort((a, b) =>
       b.score !== a.score
         ? b.score - a.score
         : a.product.priceCents - b.product.priceCents,
     )
-    .filter((s) => s.score > 0)
+    .filter((s) => s.score > 0 && (
+      prefs.maxDeltaCents == null ||
+      s.product.priceCents - original.priceCents <= prefs.maxDeltaCents
+    ))
     .slice(0, 2);
 
   const suggestions = scored.map((s) => {
