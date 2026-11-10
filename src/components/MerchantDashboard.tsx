@@ -88,7 +88,7 @@ export default function MerchantDashboard() {
       if (!r.ok) throw new Error(j.error || `HTTP ${r.status}`);
       const n = j.affectedOrderIds?.length ?? 0;
       setBanner(
-        p.inStock
+        !p.inStock
           ? {
               kind: "info",
               text:

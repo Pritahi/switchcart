@@ -1,5 +1,19 @@
+# dependencies / build output
 node_modules/
 .next/
+out/
+build/
+
+# secrets — never commit; use .env.example as the template
 .env
 .env.local
-*.log
+.env.*.local
+
+# misc
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+
+# generated source archive (rebuilt by the packaging script)
+public/*.zip
