@@ -104,6 +104,7 @@ function ruleFallback(
   note: string | null,
 ): AiOutcome {
   const scored = candidates
+    .filter((c) => prefs.maxDeltaCents == null || c.priceCents - original.priceCents <= prefs.maxDeltaCents)
     .map((c) => scoreCandidate(original, c, prefs))
     .sort((a, b) =>
       b.score !== a.score
@@ -238,7 +239,7 @@ export async function proposeSubstitutions(
     for (const s of parsed.suggestions ?? []) {
       if (!s.productId || seen.has(s.productId) || suggestions.length >= 2) continue;
       const p = byId.get(s.productId);
-      if (!p || !p.inStock || p.id === original.id) continue;
+      if (!p || !p.inStock || p.id === original.id || (prefs.maxDeltaCents != null && p.priceCents - original.priceCents > prefs.maxDeltaCents)) continue;
       seen.add(s.productId);
       suggestions.push(
         toSuggestion(

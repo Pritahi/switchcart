@@ -796,6 +796,15 @@ export async function submitConsent(
     throw new HttpError(409, "NO_AUTHORIZATION", "Order has no open PayPal authorization to capture.");
   }
 
+  // The buyer must approve the price actually shown, not a later catalog price.
+  if (replacement.priceCents !== offered.priceCents || replacement.currency !== offered.currency) {
+    throw new HttpError(409, "PRICE_CHANGED", "The replacement price changed. Request a new proposal before consenting.");
+  }
+  const prefs = order.prefs as unknown as BuyerPrefs;
+  if (prefs.maxDeltaCents != null && replacement.priceCents - order.amountCents > prefs.maxDeltaCents) {
+    throw new HttpError(409, "PREFERENCE_LIMIT", "This replacement exceeds the buyer's maximum extra spend.");
+  }
+
   const finalCents = replacement.priceCents; // server-side source of truth (never trust client)
   const diffCents = finalCents - order.amountCents;
 

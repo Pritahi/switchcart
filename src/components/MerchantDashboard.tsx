@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Activity,
   AlertTriangle,
@@ -256,9 +257,9 @@ export default function MerchantDashboard() {
           ) : orders.length === 0 ? (
             <p className="rounded-xl border border-dashed border-[var(--line-strong)] p-6 text-center text-sm text-[var(--faint)]">
               No orders yet. Run a checkout on the{" "}
-              <a href="/" className="text-[var(--azure)] underline decoration-dotted underline-offset-2">
+              <Link href="/" className="text-[var(--azure)] underline decoration-dotted underline-offset-2">
                 storefront
-              </a>
+              </Link>
               .
             </p>
           ) : (
