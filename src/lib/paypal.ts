@@ -384,7 +384,8 @@ export async function ppVoid(authorizationId: string): Promise<PayPalOpResult> {
     const r = await callApi(`/v2/payments/authorizations/${authorizationId}/void`, {
       method: "POST", requestId,
     });
-    const ok = r.httpStatus === 204;
+    // PayPal returns 200 (not 204) when Prefer: return=representation is sent; both mean the hold was released.
+    const ok = r.httpStatus === 204 || r.httpStatus === 200;
     return {
       ok, action: "authorizations.void", httpStatus: r.httpStatus,
       paypalRequestId: requestId, paypalDebugId: r.debugId,
