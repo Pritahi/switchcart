@@ -385,7 +385,13 @@ export async function ppVoid(authorizationId: string): Promise<PayPalOpResult> {
       method: "POST", requestId,
     });
     // PayPal returns 200 (not 204) when Prefer: return=representation is sent; both mean the hold was released.
-    const ok = r.httpStatus === 204 || r.httpStatus === 200;
+    // Voiding an already-voided authorization returns 422 PREVIOUSLY_VOIDED - also success (idempotent void).
+    const respDetails = (r.data as unknown as { details?: Array<{ issue?: string }> } | null)?.details;
+    const previouslyVoided =
+      r.httpStatus === 422 &&
+      Array.isArray(respDetails) &&
+      respDetails.some((d) => d?.issue === "PREVIOUSLY_VOIDED");
+    const ok = r.httpStatus === 204 || r.httpStatus === 200 || previouslyVoided;
     return {
       ok, action: "authorizations.void", httpStatus: r.httpStatus,
       paypalRequestId: requestId, paypalDebugId: r.debugId,
